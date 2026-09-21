@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+
 	"uniq/uniq"
 )
 
@@ -32,7 +33,11 @@ func main() {
 	var output io.Writer = os.Stdout
 
 	if len(args) > 0 {
-		f, _ := os.Open(args[0])
+		f, err := os.Open(args[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error! Opening input file: %v\n", err)
+			os.Exit(1)
+		}
 
 		defer f.Close()
 
@@ -40,16 +45,28 @@ func main() {
 	}
 
 	if len(args) > 1 {
-		f, _ := os.Create(args[1])
+		f, err := os.Create(args[1])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error! Creating output file: %v\n", err)
+			os.Exit(1)
+		}
 
 		defer f.Close()
 
 		output = f
 	}
 
-	lines, _ := readLines(input)
+	lines, err := readLines(input)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading: %v\n", err)
+		os.Exit(1)
+	}
 
-	result, _ := uniq.Uniq(lines, options)
+	result, err := uniq.Uniq(lines, options)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error! %v\n", err)
+		os.Exit(1)
+	}
 
 	writer := bufio.NewWriter(output)
 
