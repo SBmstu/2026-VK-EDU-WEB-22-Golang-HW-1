@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -16,20 +15,18 @@ func main() {
 	if len(os.Args) > 1 {
 		input = strings.Join(os.Args[1:], " ")
 	} else {
-		reader := bufio.NewReader(os.Stdin)
-
-		line, err := reader.ReadString('\n')
-		if err != nil && err != io.EOF {
-			fmt.Fprintf(os.Stderr, "error reading stdin: %v\n", err)
+		data, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
 			os.Exit(1)
 		}
 
-		input = line
+		input = string(data)
 	}
 
 	result, err := calc.Eval(input)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 

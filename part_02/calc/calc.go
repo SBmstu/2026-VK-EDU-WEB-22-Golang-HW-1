@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"calc/calc/parser"
 	"calc/types"
@@ -13,20 +14,27 @@ import (
 func strtok(s string) ([]types.Token, error) {
 	var tokens []types.Token
 
-	i := 0
-	for i < len(s) {
-		c := s[i]
+	runes := []rune(s)
 
-		if (c >= '0' && c <= '9') || c == '.' {
+	i := 0
+	for i < len(runes) {
+		c := runes[i]
+
+		if unicode.IsSpace(c) {
+			i++
+			continue
+		}
+
+		if c >= '0' && c <= '9' || c == '.' {
 			start := i
 
-			for i < len(s) && ((s[i] >= '0' && s[i] <= '9') || s[i] == '.') {
+			for i < len(runes) && (runes[i] >= '0' && runes[i] <= '9' || runes[i] == '.') {
 				i++
 			}
 
-			num, err := strconv.ParseFloat(s[start:i], 64)
+			num, err := strconv.ParseFloat(string(runes[start:i]), 64)
 			if err != nil {
-				return nil, fmt.Errorf("Error! Invalid number: %s", s[start:i])
+				return nil, fmt.Errorf("Error! Invalid number: %s", string(runes[start:i]))
 			}
 
 			tokens = append(tokens, types.Token{TokType: types.TokNumber, Num: num})
@@ -35,7 +43,6 @@ func strtok(s string) ([]types.Token, error) {
 		}
 
 		switch c {
-		case ' ', '\t', '\n', '\r':
 		case '+':
 			tokens = append(tokens, types.Token{TokType: types.TokPlus})
 		case '-':

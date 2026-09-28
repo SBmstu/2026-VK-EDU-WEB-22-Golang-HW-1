@@ -1,8 +1,9 @@
 package calc
 
 import (
-	"math"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestEval(t *testing.T) {
@@ -19,6 +20,7 @@ func TestEval(t *testing.T) {
 		{name: "parentheses", expr: "(1+2)*3", want: 9},
 		{name: "unary minus", expr: "-5+2", want: -3},
 		{name: "precedence", expr: "2+3*4", want: 14},
+		{name: "multiline", expr: "(1\n+ 2) *\n3\n/ 4", want: 2.25},
 		{name: "error", expr: "1/0", wantErr: true},
 	}
 
@@ -26,13 +28,13 @@ func TestEval(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Eval(tt.expr)
 
-			if (err != nil) != tt.wantErr {
-				t.Fatalf("Eval(%q) error = %v, wantErr %v", tt.expr, err, tt.wantErr)
+			if tt.wantErr {
+				require.Error(t, err)
+				return
 			}
 
-			if !tt.wantErr && math.Abs(got-tt.want) > 1e-9 {
-				t.Errorf("Eval(%q) = %v, want %v", tt.expr, got, tt.want)
-			}
+			require.NoError(t, err)
+			require.InDelta(t, tt.want, got, 1e-9)
 		})
 	}
 }
