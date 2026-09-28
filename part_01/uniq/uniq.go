@@ -3,27 +3,14 @@ package uniq
 import (
 	"fmt"
 	"strings"
+
+	"uniq/types"
+	"uniq/utils"
 )
 
-type Options struct {
-	Count bool
-	Repeated bool
-	Unique bool
-	IgnoreCase bool
-	SkipFields int
-	SkipChars int
-}
 
-func ValidateOptions(opts Options) error {
-	if (opts.Count && opts.Repeated) || (opts.Count && opts.Unique) || (opts.Repeated && opts.Unique) {
-		return fmt.Errorf("options -c, -d, -u are mutually exclusive")
-	}
-
-	return nil
-}
-
-func Uniq(lines []string, options Options) ([]string, error) {
-	if err := ValidateOptions(options); err != nil {
+func Uniq(lines []string, options types.Options) ([]string, error) {
+	if err := utils.ValidateOptions(options); err != nil {
 		return nil, err
 	}
 
@@ -64,22 +51,14 @@ func Uniq(lines []string, options Options) ([]string, error) {
 	return result, nil
 }
 
-func isSpace(r rune) bool {
-	if r == ' ' || r == '\t' || r == '\n' || r == '\r' {
-		return true
-	}
-
-	return false
-}
-
-func lineKey(line string, options Options) string {
+func lineKey(line string, options types.Options) string {
 	runes := []rune(line)
 	pos := 0
 	if options.SkipFields > 0 {
 		fieldsSkipped := 0
 		i := 0
 		for i < len(runes) && fieldsSkipped < options.SkipFields {
-			for i < len(runes) && isSpace(runes[i]) {
+			for i < len(runes) && !utils.IsSpace(runes[i]) {
 				i++
 			}
 
@@ -87,13 +66,13 @@ func lineKey(line string, options Options) string {
 				break
 			}
 
-			for i < len(runes) && !isSpace(runes[i]) {
+			for i < len(runes) &&  !utils.IsSpace(runes[i]) {
 				i++
 			}
 
 			fieldsSkipped++
 
-			for i < len(runes) && isSpace(runes[i]) {
+			for i < len(runes) && !utils.IsSpace(runes[i]) {
 				i++
 			}
 		}

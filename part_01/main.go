@@ -7,7 +7,9 @@ import (
 	"io"
 	"os"
 
+	"uniq/types"
 	"uniq/uniq"
+	"uniq/utils"
 )
 
 const (
@@ -26,7 +28,7 @@ const (
 	DescSkipChars = "skip first N chars"
 )
 
-func initFlags(options uniq.Options) {
+func initFlags(options types.Options) {
 	flag.BoolVar(&options.Count, FlagCount, false, DescCount)
 	flag.BoolVar(&options.Repeated, FlagRepeated, false, DescRepeated)
 	flag.BoolVar(&options.Unique, FlagUnique, false, DescUnique)
@@ -37,11 +39,11 @@ func initFlags(options uniq.Options) {
 }
 
 func main() {
-	var options uniq.Options
+	var options types.Options
 	
 	initFlags(options)
 
-	if err := uniq.ValidateOptions(options); err != nil {
+	if err := utils.ValidateOptions(options); err != nil {
 		fmt.Fprintf(os.Stderr, "Error! %v\n", err)
 
 		flag.Usage()
