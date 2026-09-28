@@ -3,6 +3,7 @@ package uniq
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"uniq/types"
 	"uniq/utils"
@@ -58,7 +59,7 @@ func lineKey(line string, options types.Options) string {
 		fieldsSkipped := 0
 		i := 0
 		for i < len(runes) && fieldsSkipped < options.SkipFields {
-			for i < len(runes) && !utils.IsSpace(runes[i]) {
+			for i < len(runes) && !unicode.IsSpace(runes[i]) {
 				i++
 			}
 
@@ -66,13 +67,13 @@ func lineKey(line string, options types.Options) string {
 				break
 			}
 
-			for i < len(runes) &&  !utils.IsSpace(runes[i]) {
+			for i < len(runes) &&  !unicode.IsSpace(runes[i]) {
 				i++
 			}
 
 			fieldsSkipped++
 
-			for i < len(runes) && !utils.IsSpace(runes[i]) {
+			for i < len(runes) && !unicode.IsSpace(runes[i]) {
 				i++
 			}
 		}
