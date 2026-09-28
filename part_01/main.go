@@ -10,18 +10,39 @@ import (
 	"uniq/uniq"
 )
 
+const (
+	FlagCount = "c"
+	FlagRepeated = "d"
+	FlagUnique = "u"
+	FlagIgnoreCase = "i"
+	FlagSkipFields = "f"
+	FlagSkipChars = "s"
+
+	DescCount = "count repeating lines"
+	DescRepeated = "show only repeated lines"
+	DescUnique = "show only unique lines"
+	DescIgnoreCase = "ignore case"
+	DescSkipFields = "skip first N fields"
+	DescSkipChars = "skip first N chars"
+)
+
+func initFlags(options uniq.Options) {
+	flag.BoolVar(&options.Count, FlagCount, false, DescCount)
+	flag.BoolVar(&options.Repeated, FlagRepeated, false, DescRepeated)
+	flag.BoolVar(&options.Unique, FlagUnique, false, DescUnique)
+	flag.BoolVar(&options.IgnoreCase, FlagIgnoreCase, false, DescIgnoreCase)
+	flag.IntVar(&options.SkipFields, FlagSkipFields, 0, DescSkipFields)
+	flag.IntVar(&options.SkipChars, FlagSkipChars, 0, DescSkipChars)
+	flag.Parse()
+}
+
 func main() {
 	var options uniq.Options
-	flag.BoolVar(&options.Count, "c", false, "count repeating lines")
-	flag.BoolVar(&options.Repeated, "d", false, "show only repeated lines")
-	flag.BoolVar(&options.Unique, "u", false, "show only unique lines")
-	flag.BoolVar(&options.IgnoreCase, "i", false, "ignore case")
-	flag.IntVar(&options.SkipFields, "f", 0, "skip first N fields")
-	flag.IntVar(&options.SkipChars, "s", 0, "skip first N chars")
-	flag.Parse()
+	
+	initFlags(options)
 
-	if (options.Count && options.Repeated) || (options.Count && options.Unique) || (options.Repeated && options.Unique) {
-		fmt.Fprintln(os.Stderr, "Error! Options -c, -d, -u are mutually exclusive")
+	if err := uniq.ValidateOptions(options); err != nil {
+		fmt.Fprintf(os.Stderr, "Error! %v\n", err)
 
 		flag.Usage()
 
@@ -64,7 +85,7 @@ func main() {
 
 	result, err := uniq.Uniq(lines, options)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error! %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error! Uniq(): %v\n", err)
 		os.Exit(1)
 	}
 

@@ -14,16 +14,24 @@ type Options struct {
 	SkipChars int
 }
 
+func ValidateOptions(opts Options) error {
+	if (opts.Count && opts.Repeated) || (opts.Count && opts.Unique) || (opts.Repeated && opts.Unique) {
+		return fmt.Errorf("options -c, -d, -u are mutually exclusive")
+	}
+
+	return nil
+}
+
 func Uniq(lines []string, options Options) ([]string, error) {
-	if (options.Count && options.Repeated) || (options.Count && options.Unique) || (options.Repeated && options.Unique) {
-		return nil, fmt.Errorf("options -c, -d, -u are mutually exclusive")
+	if err := ValidateOptions(options); err != nil {
+		return nil, err
 	}
 
 	if len(lines) == 0 {
 		return []string{}, nil
 	}
 
-	var result []string
+	result := make([]string, 0, len(lines))
 	i := 0
 	for i < len(lines) {
 		key := lineKey(lines[i], options)
@@ -56,6 +64,14 @@ func Uniq(lines []string, options Options) ([]string, error) {
 	return result, nil
 }
 
+func isSpace(r rune) bool {
+	if r == ' ' || r == '\t' || r == '\n' || r == '\r' {
+		return true
+	}
+
+	return false
+}
+
 func lineKey(line string, options Options) string {
 	runes := []rune(line)
 	pos := 0
@@ -63,7 +79,7 @@ func lineKey(line string, options Options) string {
 		fieldsSkipped := 0
 		i := 0
 		for i < len(runes) && fieldsSkipped < options.SkipFields {
-			for i < len(runes) && runes[i] == ' ' {
+			for i < len(runes) && isSpace(runes[i]) {
 				i++
 			}
 
@@ -71,13 +87,13 @@ func lineKey(line string, options Options) string {
 				break
 			}
 
-			for i < len(runes) && runes[i] != ' ' {
+			for i < len(runes) && !isSpace(runes[i]) {
 				i++
 			}
 
 			fieldsSkipped++
 
-			for i < len(runes) && runes[i] == ' ' {
+			for i < len(runes) && isSpace(runes[i]) {
 				i++
 			}
 		}
