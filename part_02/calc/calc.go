@@ -1,7 +1,6 @@
 package calc
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -34,7 +33,7 @@ func strtok(s string) ([]types.Token, error) {
 
 			num, err := strconv.ParseFloat(string(runes[start:i]), 64)
 			if err != nil {
-				return nil, fmt.Errorf("Error! Invalid number: %s", string(runes[start:i]))
+				return nil, types.CreateError(types.ErrInvalidNumber, s[start:i])
 			}
 
 			tokens = append(tokens, types.Token{TokType: types.TokNumber, Num: num})
@@ -56,7 +55,7 @@ func strtok(s string) ([]types.Token, error) {
 		case ')':
 			tokens = append(tokens, types.Token{TokType: types.TokRBracket})
 		default:
-			return nil, fmt.Errorf("Error! Unexpected character: %c", c)
+			return nil, types.CreateError(types.ErrUnexpectedChar, c)
 		}
 
 		i++
@@ -70,7 +69,7 @@ func strtok(s string) ([]types.Token, error) {
 func Eval(expr string) (float64, error) {
 	expr = strings.TrimSpace(expr)
 	if expr == "" {
-		return 0, fmt.Errorf("Error! Empty expression")
+		return 0, types.ErrEmptyExpression
 	}
 
 	tokens, err := strtok(expr)

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"calc/types"
-	"fmt"
 )
 
 type Parser struct {
@@ -12,6 +11,10 @@ type Parser struct {
 
 
 func (p *Parser) peek() types.Token {
+	if (p.pos >= len(p.tokens)) {
+		return types.Token{TokType: types.TokEOF}
+	}
+
 	return p.tokens[p.pos]
 }
 
@@ -74,7 +77,7 @@ func (p *Parser) parseTerm() (float64, error) {
 			left *= right
 		} else {
 			if right == 0 {
-				return 0, fmt.Errorf("Error! Division by zero")
+				return 0, types.ErrDivisionByZero
 			}
 
 			left /= right
@@ -114,7 +117,7 @@ func (p *Parser) parseFactor() (float64, error) {
 		}
 
 		if p.peek().TokType != types.TokRBracket {
-			return 0, fmt.Errorf("Error! Expected closing bracket")
+			return 0, types.ErrExpectedRBracket
 		}
 
 		p.next()
@@ -122,7 +125,7 @@ func (p *Parser) parseFactor() (float64, error) {
 		return v, nil
 	}
 
-	return 0, fmt.Errorf("Error! Unexpected types.Token")
+	return 0, types.ErrUnexpectedToken
 }
 
 
@@ -137,7 +140,7 @@ func (p *Parser) Parse() (float64, error) {
 	}
 
 	if p.peek().TokType != types.TokEOF {
-		return 0, fmt.Errorf("Error! Unexpected token after expression")
+		return 0, types.ErrTrailingTokens
 	}
 
 	return result, nil
