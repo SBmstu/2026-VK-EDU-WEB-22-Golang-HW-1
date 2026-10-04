@@ -12,9 +12,13 @@ import (
 	"uniq/utils"
 )
 
+var options types.Options
 
+func init() {
+	initFlags()
+}
 
-func initFlags(options *types.Options) {
+func initFlags() {
 	flag.BoolVar(&options.Count, types.FlagCount, false, types.DescCount)
 	flag.BoolVar(&options.Repeated, types.FlagRepeated, false, types.DescRepeated)
 	flag.BoolVar(&options.Unique, types.FlagUnique, false, types.DescUnique)
@@ -23,11 +27,9 @@ func initFlags(options *types.Options) {
 	flag.IntVar(&options.SkipChars, types.FlagSkipChars, 0, types.DescSkipChars)
 	flag.Parse()
 }
-
+ 
 func main() {
 	var options types.Options
-	
-	initFlags(&options)
 
 	if err := utils.ValidateOptions(options); err != nil {
 		fmt.Fprintf(os.Stderr, "Error! Validate options: %v\n", err)

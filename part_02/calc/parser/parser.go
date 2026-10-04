@@ -46,9 +46,10 @@ func (p *Parser) parseExpr() (float64, error) {
 
 		if t.TokType == types.TokPlus {
 			left += right
-		} else {
-			left -= right
+			continue
 		}
+
+		left -= right
 	}
 
 	return left, nil
@@ -75,13 +76,14 @@ func (p *Parser) parseTerm() (float64, error) {
 
 		if t.TokType == types.TokMul {
 			left *= right
-		} else {
-			if right == 0 {
-				return 0, types.ErrDivisionByZero
-			}
+			continue
+		} 
 
-			left /= right
+		if right == 0 {
+			return 0, types.ErrDivisionByZero
 		}
+
+		left /= right
 	}
 
 	return left, nil
