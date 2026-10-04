@@ -9,7 +9,17 @@ import (
 	"calc/calc"
 )
 
+const (
+	codeSuccess = 0
+	codeFailure = 1
+)
+
+
 func main() {
+	os.Exit(process())
+}
+
+func process() int {
 	var input string
 
 	if len(os.Args) > 1 {
@@ -18,7 +28,7 @@ func main() {
 		data, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
-			os.Exit(1)
+			return codeFailure
 		}
 
 		input = string(data)
@@ -27,8 +37,10 @@ func main() {
 	result, err := calc.Eval(input)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
+		return codeFailure
 	}
 
 	fmt.Println(result)
+
+	return codeSuccess
 }
